@@ -72,6 +72,43 @@ export async function graphFetch(path: string, init: RequestInit = {}): Promise<
   }
 }
 
+/**
+ * Pre-authenticated download (ADR-0033): a plain fetch with NO Authorization header and no
+ * credentials, deliberately not graphFetch so the bearer can never reach a non-Graph host.
+ * Logged as "download <name>"; the URL is never logged.
+ */
+export async function downloadJson(url: string, name: string, init: RequestInit = {}): Promise<unknown | null> {
+  const method = (init.method ?? "GET").toUpperCase();
+  if (method !== "GET") throw new Error(`downloadJson is read-only: ${method} refused`);
+  const t0 = performance.now();
+  let status = 0;
+  try {
+    const res = await fetch(url, { method: "GET", credentials: "omit" });
+    status = res.status;
+    if (!res.ok) return null;
+    return await res.json();
+  } finally {
+    emit({
+      ...log,
+      rows: [...log.rows, { method: "GET", path: `download ${name}`, status, ms: Math.round(performance.now() - t0) }],
+    });
+  }
+}
+
+/** Two steps: Graph metadata for the downloadUrl (404 = absent), then a plain download of the JSON. */
+async function readJsonFile(f: Folder, rel: string): Promise<unknown | null> {
+  const res = await graphFetch(`${itemPath(f, rel)}?$select=id,@microsoft.graph.downloadUrl`);
+  if (!res.ok) return null;
+  const meta = (await res.json()) as Record<string, unknown>;
+  const url = meta["@microsoft.graph.downloadUrl"];
+  if (typeof url !== "string") return null;
+  try {
+    return await downloadJson(url, rel.split("/").pop() ?? rel);
+  } catch {
+    return null;
+  }
+}
+
 export async function graphJson<T>(path: string): Promise<T> {
   const res = await graphFetch(path);
   if (!res.ok) throw new Error(`Graph ${res.status} for ${displayPath(path)}`);
@@ -110,10 +147,10 @@ export async function listMatches(root: Folder): Promise<MatchEntry[]> {
   const found = await Promise.all(
     dirs.map(async (d): Promise<MatchEntry | null> => {
       const folder = { driveId: root.driveId, itemId: d.id };
-      const res = await graphFetch(`${itemPath(folder, "match.json:")}/content`);
-      if (!res.ok) return null;
+      const raw = await readJsonFile(folder, "match.json");
+      if (raw === null) return null;
       try {
-        return { folder, match: decodeMatch(await res.json()) };
+        return { folder, match: decodeMatch(raw) };
       } catch {
         return null;
       }
@@ -125,10 +162,10 @@ export async function listMatches(root: Folder): Promise<MatchEntry[]> {
 }
 
 export async function fetchSession(f: Folder, halfFolder: string): Promise<AppSession | null> {
-  const res = await graphFetch(`${itemPath(f, `${halfFolder}/session.json:`)}/content`);
-  if (!res.ok) return null;
+  const raw = await readJsonFile(f, `${halfFolder}/session.json`);
+  if (raw === null) return null;
   try {
-    return decodeSession(await res.json());
+    return decodeSession(raw);
   } catch {
     return null;
   }

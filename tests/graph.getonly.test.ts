@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { graphFetch, setTokenSource } from "../src/graph";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { downloadJson, graphFetch, setTokenSource } from "../src/graph";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
@@ -23,5 +25,30 @@ describe("graphFetch is GET-only", () => {
     await graphFetch("https://contoso.sharepoint.com/download?x=1");
     const h2 = new Headers((fetchMock.mock.calls[1][1] as RequestInit).headers);
     expect(h2.get("Authorization")).toBeNull();
+  });
+});
+
+describe("downloadJson", () => {
+  it("sends no Authorization header and no credentials", async () => {
+    fetchMock.mockResolvedValueOnce(new Response('{"a":1}', { status: 200 }));
+    expect(await downloadJson("https://contoso.sharepoint.com/dl?x=1", "match.json")).toEqual({ a: 1 });
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(new Headers(init.headers).get("Authorization")).toBeNull();
+    expect(init.credentials).toBe("omit");
+  });
+  for (const method of ["POST", "PUT", "DELETE"]) {
+    it(`refuses ${method}`, async () => {
+      await expect(downloadJson("https://x.example/f", "f", { method })).rejects.toThrow(/read-only/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  }
+});
+
+describe("no /content endpoint (CORS: 302 redirect)", () => {
+  it("no source file under src/ contains '/content'", () => {
+    const dir = join(__dirname, "..", "src");
+    for (const f of readdirSync(dir)) {
+      expect(readFileSync(join(dir, f), "utf8"), f).not.toContain("/content");
+    }
   });
 });

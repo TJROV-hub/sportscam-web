@@ -16,6 +16,10 @@ async function setup(page: Page) {
       getToken: async () => ({ accessToken: "test-token", scopes: ["User.Read", "Files.Read.All", "offline_access"] }),
     };
   });
+  await page.route("https://files.example.test/**", (route) => {
+    const n = route.request().url();
+    return route.fulfill({ json: n.endsWith("match.json") ? match : n.endsWith("s1.json") ? s1 : s2 });
+  });
   await page.route("https://graph.microsoft.com/**", async (route) => {
     const u = decodeURIComponent(route.request().url());
     const ok = (b: unknown) => route.fulfill({ json: b });
@@ -24,9 +28,9 @@ async function setup(page: Page) {
       return ok({ value: [{ id: "s", remoteItem: { id: "ROOTITEM1234", name: "Recording_90-8", parentReference: { driveId: "DRIVE12345678" } } }] });
     if (u.includes("/children"))
       return ok({ value: [{ id: "M1", name: match.name, folder: {} }, { id: "M2", name: "Recording_old", folder: {} }] });
-    if (u.includes("M1:/match.json")) return ok(match);
-    if (u.includes("M1:/half-1/session.json")) return ok(s1);
-    if (u.includes("M1:/half-2/session.json")) return ok(s2);
+    if (u.includes("M1:/match.json")) return ok({ id: "f1", "@microsoft.graph.downloadUrl": "https://files.example.test/match.json" });
+    if (u.includes("M1:/half-1/session.json")) return ok({ id: "f2", "@microsoft.graph.downloadUrl": "https://files.example.test/s1.json" });
+    if (u.includes("M1:/half-2/session.json")) return ok({ id: "f3", "@microsoft.graph.downloadUrl": "https://files.example.test/s2.json" });
     return route.fulfill({ status: 404, json: {} });
   });
 }
