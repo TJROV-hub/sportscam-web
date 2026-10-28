@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "6f1d2c3e-0000-4000-8000-000000000001",
+  "name": "Recording_2026-11-02_1400_vs-Herlev",
+  "home": "Club U15",
+  "opponent": "Herlev",
+  "home_away": "home",
+  "date": "2026-11-02",
+  "director": {
+    "upn": "director@example.org",
+    "device": "iPhone 15"
+  },
+  "halves": [
+    {
+      "half": 1,
+      "folder": "half-1",
+      "session_id": "6f1d2c3e-0000-4000-8000-000000000011"
+    },
+    {
+      "half": 2,
+      "folder": "half-2",
+      "session_id": "6f1d2c3e-0000-4000-8000-000000000012"
+    }
+  ],
+  "status": "recording"
+}

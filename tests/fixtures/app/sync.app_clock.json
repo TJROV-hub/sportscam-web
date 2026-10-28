@@ -1,0 +1,18 @@
+{
+  "offset_ms": 412.6,
+  "confidence": 0.95,
+  "method": "app_clock",
+  "drift_ms_per_min": 0.0,
+  "checked_at_ms": [],
+  "window_offsets_ms": [],
+  "evidence": {
+    "clock_sync_rtt_ms": 2.1,
+    "clock_offset_ms": -13.7,
+    "n_samples": 50.0,
+    "clock_offset_std_ms": 0.4,
+    "clock_sync_age_s": 4.0,
+    "first_frame_host_ms_left": 0.0,
+    "first_frame_host_ms_right": 412.6
+  },
+  "visual_validation": null
+}
