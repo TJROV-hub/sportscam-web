@@ -1,0 +1,20 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f4f5f7; color: #111; }
+main { max-width: 640px; margin: 0 auto; padding: 8px; }
+header, footer { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 0; }
+button { font: inherit; padding: 10px 14px; min-height: 44px; }
+.card { background: #fff; border-radius: 8px; padding: 12px; margin: 8px 0; width: 100%; overflow-wrap: anywhere; }
+.card h2 { font-size: 1rem; margin: 0 0 4px; }
+.halves { list-style: none; padding: 0; margin: 8px 0 0; }
+.half { border-top: 1px solid #ddd; padding: 8px 0; }
+.half-head { display: flex; gap: 8px; align-items: center; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #ddd; font-size: .8rem; }
+.badge.done { background: #bfe8c4; } .badge.failed { background: #f3b8b8; }
+.muted { color: #666; font-size: .85rem; }
+.errors { color: #a00; padding-left: 18px; }
+video { width: 100%; aspect-ratio: 16 / 9; background: #000; display: block; }
+.log { font-size: .75rem; width: 100%; overflow-x: auto; background: #fff; padding: 8px; }
+.log table { width: 100%; border-collapse: collapse; }
+.log .path { word-break: break-all; }
+.paste input { width: 100%; padding: 10px; }
+.error { color: #a00; }

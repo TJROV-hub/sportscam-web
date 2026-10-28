@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "id": "6f1d2c3e-0000-4000-8000-000000000011",
+  "match_id": "6f1d2c3e-0000-4000-8000-000000000001",
+  "half": 1,
+  "name": "Recording_2026-11-02_1400_vs-Herlev/half-1",
+  "kicked_off_at": "2026-11-02T14:00:12+01:00",
+  "home": "Club U15",
+  "opponent": "Herlev",
+  "home_away": "home",
+  "director": {
+    "upn": "director@example.org",
+    "device": "iPhone 15"
+  },
+  "phones": {
+    "left": {
+      "device": "iPhone 15",
+      "app_version": "1.0",
+      "first_frame_host_ns": 123,
+      "clip": "left.mov",
+      "bytes": 0
+    },
+    "right": {
+      "device": "iPhone 15 Pro",
+      "app_version": "1.0",
+      "first_frame_host_ns": 456,
+      "clip": "right.mov",
+      "bytes": 0
+    }
+  },
+  "capture": {
+    "codec": "hevc",
+    "fps": 30.0,
+    "width": 3840,
+    "height": 2160,
+    "bitrate_mbps": 20.0,
+    "lens": "ultrawide",
+    "exposure_locked": true
+  },
+  "status": "recording",
+  "offset_ms": 412.6,
+  "sync_agreement_ms": null,
+  "worker": {
+    "host": "LEGION",
+    "started_at": null,
+    "finished_at": null,
+    "sportscam_version": null
+  },
+  "outputs": {
+    "output_video": "outputs/output_1080p.mp4",
+    "panorama": "outputs/panorama.mp4",
+    "metrics": "outputs/metrics.json"
+  },
+  "errors": []
+}
