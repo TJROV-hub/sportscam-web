@@ -1,6 +1,6 @@
 import { graphFetch, type Folder } from "./graph";
 
-export type ResolvedBy = "sharedWithMe" | "ownerSearch" | "shareLink";
+export type ResolvedBy = "shareLink";
 export interface Resolution extends Folder {
   resolvedBy: ResolvedBy;
   resolvedAt: string;
@@ -37,42 +37,28 @@ interface DriveItem {
   remoteItem?: DriveItem;
 }
 
-async function getItems(path: string): Promise<DriveItem[]> {
-  const res = await graphFetch(path);
-  if (!res.ok) return [];
-  return ((await res.json()) as { value?: DriveItem[] }).value ?? [];
-}
-
 function save(homeAccountId: string, r: Resolution, storage: Storage): Resolution {
   storage.setItem(key(homeAccountId), JSON.stringify(r));
   return r;
 }
 
-/** Order of ADR-0033 D1 (a) and (b); null means the user must paste a sharing link. */
+export const LINK_PLACEHOLDER = "REPLACE_WITH_VIEW_LINK";
+
+/**
+ * ADR-0035 D1/D2/D5: cache first, then the configured view-only sharing link through
+ * /shares/u!.../driveItem. null means the manual paste input must be offered (no usable
+ * configured link, or it returned non-2xx).
+ */
 export async function resolveFolder(
   homeAccountId: string,
-  folderName: string,
+  configuredLink: string | undefined,
   storage: Storage = localStorage,
 ): Promise<Resolution | null> {
   const cached = readCache(homeAccountId, storage);
   if (cached) return cached;
-  const now = () => new Date().toISOString();
-
-  const shared = await getItems("/me/drive/sharedWithMe");
-  const hit = shared.find((i) => i.remoteItem?.name === folderName && i.remoteItem.id);
-  const driveId = hit?.remoteItem?.parentReference?.driveId;
-  if (hit?.remoteItem && driveId) {
-    return save(homeAccountId, { driveId, itemId: hit.remoteItem.id, resolvedBy: "sharedWithMe", resolvedAt: now() }, storage);
-  }
-
-  const q = encodeURIComponent(`'${folderName}'`);
-  const found = (await getItems(`/me/drive/root/search(q=${q})`)).find(
-    (i) => i.folder && i.name === folderName && i.parentReference?.driveId,
-  );
-  if (found?.parentReference?.driveId) {
-    return save(homeAccountId, { driveId: found.parentReference.driveId, itemId: found.id, resolvedBy: "ownerSearch", resolvedAt: now() }, storage);
-  }
-  return null;
+  const link = (configuredLink ?? "").trim();
+  if (!link || link === LINK_PLACEHOLDER) return null;
+  return resolveByLink(homeAccountId, link, storage);
 }
 
 export async function resolveByLink(
@@ -80,7 +66,7 @@ export async function resolveByLink(
   link: string,
   storage: Storage = localStorage,
 ): Promise<Resolution | null> {
-  const res = await graphFetch(`/shares/${encodeShareLink(link.trim())}/driveItem`);
+  const res = await graphFetch(`/shares/${encodeShareLink(link.trim())}/driveItem?$select=id,name,parentReference`);
   if (!res.ok) return null;
   const item = (await res.json()) as DriveItem;
   const driveId = item.parentReference?.driveId;

@@ -11,6 +11,7 @@ export const CONFIG = {
   clientId: import.meta.env.VITE_CLIENT_ID as string,
   authority: (import.meta.env.VITE_AUTHORITY as string) ?? "https://login.microsoftonline.com/common",
   redirectUri: import.meta.env.VITE_REDIRECT_URI as string,
+  sharedFolderLink: (import.meta.env.VITE_SHARED_FOLDER_LINK as string | undefined) ?? "",
   folderName: (import.meta.env.VITE_SHARED_FOLDER_NAME as string) || "Recording_90-8",
 };
 
