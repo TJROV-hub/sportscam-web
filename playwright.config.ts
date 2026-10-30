@@ -7,7 +7,8 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:5173/sportscam-web/",
-    reuseExistingServer: true,
+    reuseExistingServer: false,
+    env: { VITE_SHARED_FOLDER_LINK: "https://example.test/view-link-for-e2e" },
     timeout: 60_000,
   },
 });

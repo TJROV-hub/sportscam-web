@@ -25,7 +25,7 @@ function SignedIn({ auth, homeAccountId }: { auth: AuthProvider; homeAccountId: 
     (async () => {
       try {
         setMe(await fetchMe());
-        const r = await resolveFolder(homeAccountId, CONFIG.folderName);
+        const r = await resolveFolder(homeAccountId, CONFIG.sharedFolderLink);
         if (!live) return;
         if (r) setResolution(r);
         else setNeedLink(true);
@@ -89,7 +89,7 @@ function SignedIn({ auth, homeAccountId }: { auth: AuthProvider; homeAccountId: 
       {error && <p className="error">{error}</p>}
       {needLink && (
         <div className="paste">
-          <p>The folder was not found. Paste the sharing link:</p>
+          <p>The configured folder link did not resolve. Paste the sharing link:</p>
           <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://…" aria-label="Sharing link" />
           <button onClick={() => void submitLink()}>Use link</button>
         </div>

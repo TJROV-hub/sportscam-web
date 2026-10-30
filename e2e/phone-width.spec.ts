@@ -24,8 +24,8 @@ async function setup(page: Page) {
     const u = decodeURIComponent(route.request().url());
     const ok = (b: unknown) => route.fulfill({ json: b });
     if (u.includes("/me?")) return ok({ displayName: "Test Person" });
-    if (u.includes("sharedWithMe"))
-      return ok({ value: [{ id: "s", remoteItem: { id: "ROOTITEM1234", name: "Recording_90-8", parentReference: { driveId: "DRIVE12345678" } } }] });
+    if (u.includes("/shares/u!") && u.includes("/driveItem"))
+      return ok({ id: "ROOTITEM1234", name: "Recording_90-8", parentReference: { driveId: "DRIVE12345678" } });
     if (u.includes("/children"))
       return ok({ value: [{ id: "M1", name: match.name, folder: {} }, { id: "M2", name: "Recording_old", folder: {} }] });
     if (u.includes("M1:/match.json")) return ok({ id: "f1", "@microsoft.graph.downloadUrl": "https://files.example.test/match.json" });

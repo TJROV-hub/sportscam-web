@@ -7,12 +7,21 @@ Vite + React 18 + TypeScript (strict), `@azure/msal-browser`, `zod`. One route, 
 
 ## What it does
 Sign in (MSAL `loginRedirect`, authority `common`), resolve the shared folder `Recording_90-8`
-(`sharedWithMe`, then owner search, then a pasted sharing link; cached in `localStorage` per
-account), list `Recording_*` match folders that carry `match.json` (newest first), and play each
+(from the configured view-only sharing link through `GET /shares/u!.../driveItem`, ADR-0035;
+cached in `localStorage` per account; the manual "Paste sharing link" input appears only if the
+configured link fails), list `Recording_*` match folders that carry `match.json` (newest first), and play each
 half's `outputs/output_1080p.mp4` from `@microsoft.graph.downloadUrl`. A "Requests" footer toggle
 shows the Graph request log, granted scopes, the folder resolution and first-frame timings
 (never a token or a download URL). Scopes are exactly `User.Read`, `Files.Read.All`,
 `offline_access`; `graphFetch` is GET-only; there is no write path to OneDrive.
+
+## Configuration: `VITE_SHARED_FOLDER_LINK`
+A **view-only** sharing link to `Recording_90-8`, in `.env.production` / `.env.development`,
+committed like the client id (public configuration, not a secret). The human supplies it; the
+value `REPLACE_WITH_VIEW_LINK` is a placeholder and is treated as "not configured". Resolution
+order: `localStorage` cache, then the configured link, then (only if the link is missing, is the
+placeholder, or `/shares` returns non-2xx) the manual paste input, which uses the same call and
+cache. `sharedWithMe` and owner search were removed (ADR-0035, superseding ADR-0033 D1).
 
 ## Run
 ```
